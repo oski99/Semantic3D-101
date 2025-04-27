@@ -15,7 +15,6 @@ dataset:
 model:
   name: KPFCNN
   ckpt_path: # path/to/your/checkpoint
-  # ckpt_path: logs/KPFCNN_Semantic3D_torch/checkpoint/ckpt_00100.pth
   KP_extent: 1.2
   KP_influence: linear
   aggregation_mode: sum
@@ -91,5 +90,3 @@ pipeline:
     max_pts:
     use_reference: false
     max_outputs: 1
-  # num_workers: 0
-  # pin_memory: false
