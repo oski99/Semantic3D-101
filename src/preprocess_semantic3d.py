@@ -99,67 +99,6 @@ def process_large_file(input_path, output_prefix, parts, sub_grid_size):
         np.savetxt(output_path, processed_pc, fmt='%.3f %.3f %.3f %i %i %i %i')
         np.savetxt(output_path.replace('.txt', '.labels'), labels, fmt='%i')
 
-# def process_large_file(input_path, output_prefix, parts, sub_grid_size):
-#     """Process a large file by splitting it into parts and processing each part separately."""
-#     # First determine the split points by scanning through the file once
-#     total_rows = 0
-#     with open(input_path, 'r') as f:
-#         for _ in f:
-#             total_rows += 1
-
-#     rows_per_part = total_rows // parts
-#     split_points = [i * rows_per_part for i in range(parts + 1)]
-#     split_points[-1] = total_rows  # Ensure last part includes all remaining rows
-
-#     # Process each part
-#     for part_num in range(parts):
-#         start_row = split_points[part_num]
-#         end_row = split_points[part_num + 1]
-
-#         # Read the chunk for this part
-#         pc_chunk = []
-#         labels_chunk = []
-#         current_row = 0
-
-#         # Read point cloud data
-#         with open(input_path, 'r') as pc_file:
-#             for line in pc_file:
-#                 if current_row >= start_row and current_row < end_row:
-#                     values = list(map(float, line.strip().split()))
-#                     pc_chunk.append(values)
-#                 current_row += 1
-#                 if current_row >= end_row:
-#                     break
-
-#         # Read corresponding labels
-#         labels_path = input_path.replace(".txt", ".labels")
-#         current_row = 0
-#         with open(labels_path, 'r') as labels_file:
-#             for line in labels_file:
-#                 if current_row >= start_row and current_row < end_row:
-#                     label = int(line.strip())
-#                     labels_chunk.append(label)
-#                 current_row += 1
-#                 if current_row >= end_row:
-#                     break
-
-#         # Convert to numpy arrays
-#         pc_chunk = np.array(pc_chunk, dtype=np.float32)
-#         labels_chunk = np.array(labels_chunk, dtype=np.int32)
-
-#         # Process this chunk
-#         points, feat, labels = utils.DataProcessing.grid_subsampling(
-#             pc_chunk[:, :3],
-#             features=pc_chunk[:, 3:],
-#             labels=labels_chunk,
-#             grid_size=sub_grid_size)
-#         processed_pc = np.concatenate([points, feat], 1)
-
-#         # Save this part
-#         output_path = f"{output_prefix}_part_{part_num}.txt"
-#         np.savetxt(output_path, processed_pc, fmt='%.3f %.3f %.3f %i %i %i %i')
-#         np.savetxt(output_path.replace('.txt', '.labels'), labels, fmt='%i')
-
 def preprocess(args):
     """Main preprocessing function."""
     dataset_path = args.dataset_path
