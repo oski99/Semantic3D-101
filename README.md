@@ -44,7 +44,7 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
 
 | Metric | Value |
 |---|---|
-| Global IoU | 0.8080 |
+| Global IoU | 0.6027 |
 | Global Accuracy | 0.8938 |
 
 ## Usage

@@ -80,8 +80,10 @@ for pred_file in pred_files:
 
 # Calculate final metrics
 logging.info("Average Per-class IoU:")
+per_class_ious = []
 for cls in sorted(all_per_class_iou.keys()):
     avg_iou = np.mean(all_per_class_iou[cls])
+    per_class_ious.append(avg_iou)  # Store for mIoU calculation
     logging.info(f"Class {cls}: {avg_iou:.4f}")
 
 logging.info("Average Per-class Accuracy:")
@@ -91,7 +93,7 @@ for cls in sorted(all_per_class_acc.keys()):
 
 # Global metrics
 global_acc = all_total_correct / all_total_samples if all_total_samples > 0 else 0.0
-global_iou = all_total_tp / (all_total_tp + all_total_fp + all_total_fn) if (all_total_tp + all_total_fp + all_total_fn) > 0 else 0.0
+mean_iou = np.mean(per_class_ious) if per_class_ious else 0.0  # Mean of per-class IoUs (mIoU)
 
 logging.info(f"Global Accuracy: {global_acc:.4f}")
-logging.info(f"Global IoU: {global_iou:.4f}")
+logging.info(f"Mean IoU (mIoU): {mean_iou:.4f}")
