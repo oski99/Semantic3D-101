@@ -176,3 +176,4 @@ cython_debug/
 logs/
 train_log/
 Semantic3D/
+test/
