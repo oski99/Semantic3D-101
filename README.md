@@ -6,12 +6,15 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
 
 - Complete data preparation pipeline (download, preprocessing)
 - Open3D-ML RandLA-Net implementation optimized for Semantic3D
-- Training and evaluation scripts
+- Training script
 - Visualization tools (PLY conversion, label histograms)
 
 ## Requirements
 
 - Python 3.10
+
+## Training artifacts
+   Trained model checkpoint, logs, and tensorboard event file can be accessed at following link: [gdrive](https://drive.google.com/drive/folders/180G0s2eyBpIvrE1DbcIdCp--wEAOOw0A?usp=sharing).
 
 ## Usage
 
