@@ -13,10 +13,8 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
 
 - Python 3.10
 
-## Training artifacts
-   Trained model checkpoint, logs, and tensorboard event file can be accessed at following link: [gdrive](https://drive.google.com/drive/folders/180G0s2eyBpIvrE1DbcIdCp--wEAOOw0A?usp=sharing).
-
 ## Notes on Evaluation
+
    The official Semantic3D test set is not publicly annotated.
    I have applied for the Point Cloud Classification Challenge access, but approval is still pending.
 
@@ -31,6 +29,11 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
    A custom wrapper Semantic3DForEval that sets up a validation split as test for evaluation.
 
    A standalone evaluation script src/eval.py that calculates per-class IoU, per-class Accuracy, and global metrics from saved prediction files.
+
+## Training artifacts
+
+   Trained model checkpoint, logs, tensorboard event file, raw test predictions and class-colored test .ply can be accessed at following link: [gdrive](https://drive.google.com/drive/folders/180G0s2eyBpIvrE1DbcIdCp--wEAOOw0A?usp=sharing).
+
 
 ## Evaluation on *bildstein_station1_xyz_intensity_rgb* and *domfountain_station1_xyz_intensity_rgb*
 
