@@ -2,7 +2,7 @@ import os
 import numpy as np
 import open3d as o3d
 
-# Label to color mapping (Semantic3D colors)
+# Label to color mapping (same as Semantic3D)
 label_to_color = {
     0: [0, 0, 0],        # unlabeled - black
     1: [70, 70, 70],     # man-made terrain - dark gray
@@ -15,95 +15,67 @@ label_to_color = {
     8: [0, 0, 255]       # cars - blue
 }
 
-def read_semantic3d_file(txt_file, labels_file):
-    """Read point cloud data and labels from Semantic3D files"""
-    # Read points (x,y,z,intensity,r,g,b)
+def read_point_cloud(txt_file):
+    """Read XYZ points from Semantic3D txt file"""
     points = np.loadtxt(txt_file)
     xyz = points[:, :3]
-    if points.shape[1] > 3:  # if intensity and rgb exist
-        intensity = points[:, 3]
-        rgb = points[:, 4:7] if points.shape[1] >= 7 else None
-    else:
-        intensity = None
-        rgb = None
+    return xyz
 
-    # Read labels
-    labels = np.loadtxt(labels_file, dtype=np.int32)
+def read_labels(labels_file):
+    """Read labels"""
+    return np.loadtxt(labels_file, dtype=np.int32)
 
-    return xyz, intensity, rgb, labels
+def create_colored_pcd(xyz, labels):
+    """Create a colored point cloud based on labels"""
+    colors = np.zeros((len(labels), 3))
+    for label, color in label_to_color.items():
+        colors[labels == label] = np.array(color) / 255.0
 
-def create_point_cloud(xyz, colors):
-    """Create Open3D point cloud with given colors"""
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(xyz)
     pcd.colors = o3d.utility.Vector3dVector(colors)
     return pcd
 
-def convert_to_ply(txt_file, labels_file, rgb_output_dir, label_output_dir):
-    """Convert Semantic3D files to both RGB and label-colored PLY"""
-    # Read files
-    xyz, intensity, rgb, labels = read_semantic3d_file(txt_file, labels_file)
+def process_predictions(txt_dir, labels_dir, output_dir):
+    """For each prediction label file, create colored PLY"""
 
-    # Create base name for output files
-    base_name = os.path.basename(txt_file).replace('.txt', '')
+    os.makedirs(output_dir, exist_ok=True)
 
-    # 1. Save RGB version (if RGB data exists)
-    if rgb is not None:
-        rgb_colors = rgb / 255.0
-        rgb_pcd = create_point_cloud(xyz, rgb_colors)
-        rgb_output_file = os.path.join(rgb_output_dir, f"{base_name}.ply")
-        o3d.io.write_point_cloud(rgb_output_file, rgb_pcd)
-        print(f"Saved RGB version to {rgb_output_file}")
+    label_files = [f for f in os.listdir(labels_dir) if f.endswith('.labels')]
 
-    # 2. Save label-colored version
-    label_colors = np.zeros((len(labels), 3))
-    for label, color in label_to_color.items():
-        label_colors[labels == label] = np.array(color) / 255.0
+    for label_file in label_files:
+        base_name = label_file.replace('.labels', '')
 
-    label_pcd = create_point_cloud(xyz, label_colors)
-    label_output_file = os.path.join(label_output_dir, f"{base_name}_labels.ply")
-    o3d.io.write_point_cloud(label_output_file, label_pcd)
-    print(f"Saved label version to {label_output_file}")
+        txt_path = os.path.join(txt_dir, f"{base_name}.txt")
+        labels_path = os.path.join(labels_dir, label_file)
 
-def process_directory(input_dir, rgb_output_dir, label_output_dir):
-    """Process all Semantic3D files in directory"""
-    os.makedirs(rgb_output_dir, exist_ok=True)
-    os.makedirs(label_output_dir, exist_ok=True)
+        if not os.path.exists(txt_path):
+            print(f"TXT file {txt_path} not found, skipping...")
+            continue
 
-    # Find all .txt files that have corresponding .labels files
-    txt_files = [f for f in os.listdir(input_dir) if f.endswith('.txt')]
+        # Load data
+        xyz = read_point_cloud(txt_path)
+        labels = read_labels(labels_path)
 
-    for txt_file in txt_files:
-        base_name = txt_file.replace('.txt', '')
-        labels_file = f"{base_name}.labels"
+        assert len(xyz) == len(labels), f"Mismatch: {base_name} (points: {len(xyz)}, labels: {len(labels)})"
 
-        if os.path.exists(os.path.join(input_dir, labels_file)):
-            txt_path = os.path.join(input_dir, txt_file)
-            labels_path = os.path.join(input_dir, labels_file)
+        # Create colored point cloud
+        pcd = create_colored_pcd(xyz, labels)
 
-            convert_to_ply(txt_path, labels_path, rgb_output_dir, label_output_dir)
+        # Save
+        output_file = os.path.join(output_dir, f"{base_name}_pred.ply")
+        o3d.io.write_point_cloud(output_file, pcd)
+        print(f"Saved prediction PLY: {output_file}")
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Convert Semantic3D dataset to colored PLY files')
-    parser.add_argument('input_dir', help='Directory containing Semantic3D .txt and .labels files')
-    parser.add_argument('--rgb_output_dir',
-                      help='Directory to save RGB PLY files (default: input_dir/ply_rgb)',
-                      default='ply_rgb')
-    parser.add_argument('--label_output_dir',
-                      help='Directory to save label-colored PLY files (default: input_dir/ply_labels)',
-                      default='ply_labels')
+    parser = argparse.ArgumentParser(description='Color predicted Semantic3D labels and save as PLY')
+    parser.add_argument('--txt_dir', help='Directory containing original .txt clouds', default='Semantic3D/processed')
+    parser.add_argument('--labels_dir', help='Directory containing .labels prediction files', default='test/Semantic3D')
+    parser.add_argument('--output_dir', help='Directory to save colored prediction PLY files', default='test/Semantic3D/clouds')
 
     args = parser.parse_args()
 
-    # Convert relative output directories to absolute paths
-    if not os.path.isabs(args.rgb_output_dir):
-        args.rgb_output_dir = os.path.join(args.input_dir, args.rgb_output_dir)
-    if not os.path.isabs(args.label_output_dir):
-        args.label_output_dir = os.path.join(args.input_dir, args.label_output_dir)
-
-    process_directory(args.input_dir, args.rgb_output_dir, args.label_output_dir)
-    print(f"Conversion complete.")
-    print(f"RGB versions saved to: {args.rgb_output_dir}")
-    print(f"Label-colored versions saved to: {args.label_output_dir}")
+    process_predictions(args.txt_dir, args.labels_dir, args.output_dir)
+    print("All prediction PLYs created.")
