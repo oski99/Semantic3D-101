@@ -70,7 +70,7 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
    poetry run python src/train.py
    ```
 
-5. **Evaluatoin**:
+5. **Evaluation**:
    ```bash
    poetry run python src/test_inference.py
    poetry run python src/eval.py
