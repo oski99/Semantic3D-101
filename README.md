@@ -34,6 +34,7 @@ This is a minimal project for Semantic3D segmentation using RandLA-Net, based on
 
    Trained model checkpoint, logs, tensorboard event file, raw test predictions and class-colored test .ply can be accessed at following link: [gdrive](https://drive.google.com/drive/folders/180G0s2eyBpIvrE1DbcIdCp--wEAOOw0A?usp=sharing).
 
+![alt text](assets/test_cloud.png)
 
 ## Evaluation on *bildstein_station1_xyz_intensity_rgb* and *domfountain_station1_xyz_intensity_rgb*
 
